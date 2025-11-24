@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة الإدارة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+        body { font-family: 'Cairo', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-red-600 to-red-800 text-white p-6 rounded-lg shadow-lg mb-6">
+            <h1 class="text-3xl font-bold">صفحة الإدارة</h1>
+            <p class="mt-2">إدارة النظام والإعدادات العامة</p>
+        </div>
+
+        <!-- Center Name -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">اسم المركز</h2>
+            <div class="flex gap-4">
+                <input type="text" id="centerName" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg" placeholder="اسم المركز الطبي">
+                <button onclick="saveCenterName()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700">حفظ</button>
+            </div>
+        </div>
+
+        <!-- News Ticker -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">الشريط الإخباري</h2>
+            <div class="space-y-4">
+                <input type="text" id="newsContent" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="محتوى الشريط الإخباري">
+                <div class="flex gap-4 items-center">
+                    <label class="text-gray-700">سرعة التحرك:</label>
+                    <input type="number" id="newsSpeed" class="px-4 py-2 border border-gray-300 rounded-lg w-32" value="50" min="10" max="200">
+                    <span class="text-gray-600">بكسل/ثانية</span>
+                    <button onclick="saveNews()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 mr-auto">حفظ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Duration -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">مدة عرض التنبيه</h2>
+            <div class="flex gap-4 items-center">
+                <input type="number" id="alertDuration" class="px-4 py-2 border border-gray-300 rounded-lg w-32" value="5" min="1" max="60">
+                <span class="text-gray-600">ثانية</span>
+                <button onclick="saveAlertDuration()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700">حفظ</button>
+            </div>
+        </div>
+
+        <!-- Audio & Video Settings -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">إعدادات الصوت والفيديو</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-700 mb-2">مسار ملفات الصوت:</label>
+                    <input type="text" id="audioPath" class="w-full px-4 py-2 border border-gray-300 rounded-lg" value="audio/">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">مسار ملفات الفيديو:</label>
+                    <input type="text" id="videoPath" class="w-full px-4 py-2 border border-gray-300 rounded-lg" value="media/">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">سرعة النطق (0.5 - 2):</label>
+                    <input type="number" id="speechRate" class="w-full px-4 py-2 border border-gray-300 rounded-lg" value="1" min="0.5" max="2" step="0.1">
+                </div>
+                <div class="flex items-end">
+                    <button onclick="saveMediaSettings()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 w-full">حفظ الإعدادات</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clinics Management -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">إدارة العيادات</h2>
+                <button onclick="showAddClinic()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">إضافة عيادة جديدة</button>
+            </div>
+            <div id="clinicsList" class="space-y-3"></div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">إجراءات سريعة</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-gray-700 mb-2">نداء عميل في عيادة:</label>
+                    <select id="callClinicSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-2"></select>
+                    <input type="number" id="callNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-2" placeholder="رقم العميل">
+                    <button onclick="callCustomer()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 w-full">نداء</button>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">تنبيه على الشاشة:</label>
+                    <input type="text" id="alertMessage" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-2" placeholder="رسالة التنبيه">
+                    <button onclick="sendAlert()" class="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 w-full">إرسال تنبيه</button>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">تصفير جميع العيادات:</label>
+                    <button onclick="resetAllClinics()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 w-full mt-8">تصفير الكل</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audio Controls -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">التحكم بالصوت</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-gray-700 mb-2">إذاعة ملف جاهز:</label>
+                    <select id="instantAudio" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-2">
+                        <option value="">اختر ملف</option>
+                        <option value="instant1.mp3">instant1.mp3</option>
+                        <option value="instant2.mp3">instant2.mp3</option>
+                        <option value="instant3.mp3">instant3.mp3</option>
+                    </select>
+                    <button onclick="playInstant()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 w-full">تشغيل</button>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">تسجيل صوت:</label>
+                    <button id="recordBtn" onclick="toggleRecord()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 w-full mb-2">بدء التسجيل</button>
+                    <button id="playRecordBtn" onclick="playRecording()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 w-full" disabled>تشغيل التسجيل</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center">
+            <a href="index.html" class="inline-block bg-gray-600 text-white px-8 py-3 rounded-lg hover:bg-gray-700">العودة للصفحة الرئيسية</a>
+        </div>
+    </div>
+
+    <!-- Add/Edit Clinic Modal -->
+    <div id="clinicModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4" id="modalTitle">إضافة عيادة جديدة</h3>
+            <div class="space-y-4">
+                <input type="hidden" id="editClinicId">
+                <div>
+                    <label class="block text-gray-700 mb-2">اسم العيادة:</label>
+                    <input type="text" id="clinicName" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">رقم العيادة:</label>
+                    <input type="number" id="clinicNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">رقم الشاشة (1-4):</label>
+                    <input type="number" id="clinicScreen" class="w-full px-4 py-2 border border-gray-300 rounded-lg" min="1" max="4">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">كلمة السر:</label>
+                    <input type="password" id="clinicPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="saveClinic()" class="flex-1 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">حفظ</button>
+                    <button onclick="closeModal()" class="flex-1 bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700">إلغاء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration - استبدل بمعلومات Firebase الخاصة بك
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let mediaRecorder;
+        let recordedChunks = [];
+        let recordedBlob;
+
+        // Load initial data
+        window.onload = function() {
+            loadSettings();
+            loadClinics();
+        };
+
+        function loadSettings() {
+            db.ref('settings').once('value', (snapshot) => {
+                const settings = snapshot.val() || {};
+                document.getElementById('centerName').value = settings.centerName || 'المركز الطبي';
+                document.getElementById('newsContent').value = settings.newsContent || 'مرحباً بكم في المركز الطبي';
+                document.getElementById('newsSpeed').value = settings.newsSpeed || 50;
+                document.getElementById('alertDuration').value = settings.alertDuration || 5;
+                document.getElementById('audioPath').value = settings.audioPath || 'audio/';
+                document.getElementById('videoPath').value = settings.videoPath || 'media/';
+                document.getElementById('speechRate').value = settings.speechRate || 1;
+            });
+        }
+
+        function saveCenterName() {
+            const name = document.getElementById('centerName').value;
+            db.ref('settings/centerName').set(name);
+            alert('تم حفظ اسم المركز');
+        }
+
+        function saveNews() {
+            const content = document.getElementById('newsContent').value;
+            const speed = document.getElementById('newsSpeed').value;
+            db.ref('settings').update({
+                newsContent: content,
+                newsSpeed: parseInt(speed)
+            });
+            alert('تم حفظ إعدادات الشريط الإخباري');
+        }
+
+        function saveAlertDuration() {
+            const duration = document.getElementById('alertDuration').value;
+            db.ref('settings/alertDuration').set(parseInt(duration));
+            alert('تم حفظ مدة التنبيه');
+        }
+
+        function saveMediaSettings() {
+            const audioPath = document.getElementById('audioPath').value;
+            const videoPath = document.getElementById('videoPath').value;
+            const speechRate = document.getElementById('speechRate').value;
+            db.ref('settings').update({
+                audioPath: audioPath,
+                videoPath: videoPath,
+                speechRate: parseFloat(speechRate)
+            });
+            alert('تم حفظ إعدادات الصوت والفيديو');
+        }
+
+        function loadClinics() {
+            db.ref('clinics').on('value', (snapshot) => {
+                const clinics = snapshot.val() || {};
+                const clinicsList = document.getElementById('clinicsList');
+                const callSelect = document.getElementById('callClinicSelect');
+                
+                clinicsList.innerHTML = '';
+                callSelect.innerHTML = '<option value="">اختر عيادة</option>';
+                
+                Object.keys(clinics).forEach(id => {
+                    const clinic = clinics[id];
+                    
+                    // Add to list
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center justify-between p-4 bg-gray-50 rounded-lg';
+                    div.innerHTML = `
+                        <div>
+                            <span class="font-bold">${clinic.name}</span>
+                            <span class="text-gray-600 mr-4">رقم: ${clinic.number}</span>
+                            <span class="text-gray-600 mr-4">شاشة: ${clinic.screen}</span>
+                            <span class="text-gray-600 mr-4">الرقم الحالي: ${clinic.currentNumber || 0}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="editClinic('${id}')" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">تعديل</button>
+                            <button onclick="deleteClinic('${id}')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">حذف</button>
+                        </div>
+                    `;
+                    clinicsList.appendChild(div);
+                    
+                    // Add to select
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = clinic.name;
+                    callSelect.appendChild(option);
+                });
+            });
+        }
+
+        function showAddClinic() {
+            document.getElementById('modalTitle').textContent = 'إضافة عيادة جديدة';
+            document.getElementById('editClinicId').value = '';
+            document.getElementById('clinicName').value = '';
+            document.getElementById('clinicNumber').value = '';
+            document.getElementById('clinicScreen').value = '1';
+            document.getElementById('clinicPassword').value = '';
+            document.getElementById('clinicModal').classList.remove('hidden');
+        }
+
+        function editClinic(id) {
+            db.ref('clinics/' + id).once('value', (snapshot) => {
+                const clinic = snapshot.val();
+                document.getElementById('modalTitle').textContent = 'تعديل العيادة';
+                document.getElementById('editClinicId').value = id;
+                document.getElementById('clinicName').value = clinic.name;
+                document.getElementById('clinicNumber').value = clinic.number;
+                document.getElementById('clinicScreen').value = clinic.screen;
+                document.getElementById('clinicPassword').value = clinic.password;
+                document.getElementById('clinicModal').classList.remove('hidden');
+            });
+        }
+
+        function saveClinic() {
+            const id = document.getElementById('editClinicId').value;
+            const name = document.getElementById('clinicName').value;
+            const number = document.getElementById('clinicNumber').value;
+            const screen = document.getElementById('clinicScreen').value;
+            const password = document.getElementById('clinicPassword').value;
+
+            if (!name || !number || !screen || !password) {
+                alert('يرجى ملء جميع الحقول');
+                return;
+            }
+
+            const clinicData = {
+                name: name,
+                number: parseInt(number),
+                screen: parseInt(screen),
+                password: password,
+                currentNumber: 0,
+                status: 'active',
+                lastCall: null
+            };
+
+            if (id) {
+                db.ref('clinics/' + id).update(clinicData);
+            } else {
+                db.ref('clinics').push(clinicData);
+            }
+
+            closeModal();
+            alert('تم حفظ العيادة');
+        }
+
+        function deleteClinic(id) {
+            if (confirm('هل تريد حذف هذه العيادة؟')) {
+                db.ref('clinics/' + id).remove();
+                alert('تم حذف العيادة');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('clinicModal').classList.add('hidden');
+        }
+
+        function callCustomer() {
+            const clinicId = document.getElementById('callClinicSelect').value;
+            const number = document.getElementById('callNumber').value;
+
+            if (!clinicId || !number) {
+                alert('يرجى اختيار العيادة ورقم العميل');
+                return;
+            }
+
+            db.ref('clinics/' + clinicId).once('value', (snapshot) => {
+                const clinic = snapshot.val();
+                const callData = {
+                    clinicId: clinicId,
+                    clinicName: clinic.name,
+                    number: parseInt(number),
+                    timestamp: Date.now()
+                };
+
+                db.ref('calls').push(callData);
+                db.ref('clinics/' + clinicId).update({
+                    currentNumber: parseInt(number),
+                    lastCall: Date.now()
+                });
+
+                alert('تم نداء العميل رقم ' + number);
+            });
+        }
+
+        function sendAlert() {
+            const message = document.getElementById('alertMessage').value;
+            if (!message) {
+                alert('يرجى كتابة رسالة التنبيه');
+                return;
+            }
+
+            db.ref('alerts').push({
+                message: message,
+                timestamp: Date.now()
+            });
+
+            alert('تم إرسال التنبيه');
+            document.getElementById('alertMessage').value = '';
+        }
+
+        function resetAllClinics() {
+            if (confirm('هل تريد تصفير جميع العيادات؟')) {
+                db.ref('clinics').once('value', (snapshot) => {
+                    const clinics = snapshot.val() || {};
+                    Object.keys(clinics).forEach(id => {
+                        db.ref('clinics/' + id).update({
+                            currentNumber: 0,
+                            lastCall: null
+                        });
+                    });
+                });
+                alert('تم تصفير جميع العيادات');
+            }
+        }
+
+        function playInstant() {
+            const file = document.getElementById('instantAudio').value;
+            if (!file) {
+                alert('يرجى اختيار ملف');
+                return;
+            }
+
+            const audio = new Audio('audio/' + file);
+            audio.play();
+        }
+
+        async function toggleRecord() {
+            const btn = document.getElementById('recordBtn');
+            
+            if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    recordedChunks = [];
+
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) {
+                            recordedChunks.push(e.data);
+                        }
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        recordedBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+                        document.getElementById('playRecordBtn').disabled = false;
+                    };
+
+                    mediaRecorder.start();
+                    btn.textContent = 'إيقاف التسجيل';
+                    btn.classList.remove('bg-red-600', 'hover:bg-red-700');
+                    btn.classList.add('bg-yellow-600', 'hover:bg-yellow-700');
+                } catch (err) {
+                    alert('خطأ في الوصول للميكروفون');
+                }
+            } else {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                btn.textContent = 'بدء التسجيل';
+                btn.classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
+                btn.classList.add('bg-red-600', 'hover:bg-red-700');
+            }
+        }
+
+        function playRecording() {
+            if (recordedBlob) {
+                const audio = new Audio(URL.createObjectURL(recordedBlob));
+                audio.play();
+            }
+        }
+    </script>
+</body>
+</html>
