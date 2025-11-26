@@ -90,6 +90,26 @@
             </div>
         </div>
 
+        <!-- Auto-Cleanup Settings -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">التنظيف التلقائي للبيانات</h2>
+            <div class="space-y-4">
+                <div class="flex items-center gap-4">
+                    <input type="checkbox" id="autoCleanup" class="w-5 h-5">
+                    <label for="autoCleanup" class="text-gray-700 font-bold">تفعيل التنظيف التلقائي اليومي</label>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-700 mb-2">عند التفعيل، سيتم تلقائياً في منتصف الليل:</p>
+                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                        <li>حذف النداءات الأقدم من 24 ساعة</li>
+                        <li>حذف التنبيهات الأقدم من 24 ساعة</li>
+                        <li>الاحتفاظ بالعيادات والأطباء والإعدادات</li>
+                    </ul>
+                </div>
+                <button onclick="saveAutoCleanup()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700">حفظ الإعدادات</button>
+            </div>
+        </div>
+
         <!-- Audio & Video Settings -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 class="text-xl font-bold text-gray-800 mb-4">إعدادات الصوت والفيديو</h2>
@@ -187,6 +207,85 @@
                 <button onclick="showAddDoctor()" class="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700">إضافة طبيب جديد</button>
             </div>
             <div id="doctorsList" class="space-y-3"></div>
+        </div>
+
+        <!-- Video Player Remote Control -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">التحكم بمشغل الفيديو (جميع الشاشات)</h2>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <button onclick="videoControl('previous')" class="bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 font-bold">
+                    ⏮️ السابق
+                </button>
+                <button onclick="videoControl('play')" class="bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 font-bold">
+                    ▶️ تشغيل
+                </button>
+                <button onclick="videoControl('pause')" class="bg-yellow-600 text-white px-4 py-3 rounded-lg hover:bg-yellow-700 font-bold">
+                    ⏸️ إيقاف
+                </button>
+                <button onclick="videoControl('next')" class="bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 font-bold">
+                    ⏭️ التالي
+                </button>
+                <button onclick="videoControl('mute')" class="bg-purple-600 text-white px-4 py-3 rounded-lg hover:bg-purple-700 font-bold">
+                    🔇 كتم
+                </button>
+            </div>
+            <div class="mt-4">
+                <label class="block text-gray-700 font-bold mb-2">مستوى الصوت:</label>
+                <div class="flex gap-4 items-center">
+                    <input type="range" id="videoVolumeControl" min="0" max="100" value="50" class="flex-1" onchange="setVideoVolume(this.value)">
+                    <span id="videoVolumeDisplay" class="text-gray-700 font-bold w-16">50%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call Statistics & Reports -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">تقارير وإحصائيات النداء</h2>
+                <button onclick="loadStatistics()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">تحديث</button>
+            </div>
+            
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <p class="text-gray-600 text-sm">إجمالي النداءات اليوم</p>
+                    <p id="totalCalls" class="text-3xl font-bold text-blue-600">0</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4">
+                    <p class="text-gray-600 text-sm">العيادات النشطة</p>
+                    <p id="activeClinics" class="text-3xl font-bold text-green-600">0</p>
+                </div>
+                <div class="bg-yellow-50 rounded-lg p-4">
+                    <p class="text-gray-600 text-sm">متوسط وقت الانتظار</p>
+                    <p id="avgWaitTime" class="text-3xl font-bold text-yellow-600">0</p>
+                    <p class="text-xs text-gray-500">دقيقة</p>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4">
+                    <p class="text-gray-600 text-sm">أكثر عيادة نشاطاً</p>
+                    <p id="mostActiveClinic" class="text-lg font-bold text-purple-600">--</p>
+                </div>
+            </div>
+
+            <!-- Clinic Details -->
+            <div id="clinicStatistics" class="space-y-3"></div>
+
+            <!-- Cleanup Options -->
+            <div class="mt-6 p-4 bg-red-50 border-l-4 border-red-500 rounded">
+                <h3 class="font-bold text-red-800 mb-2">صيانة قاعدة البيانات</h3>
+                <p class="text-sm text-gray-700 mb-4">لتحسين الأداء، يمكنك حذف البيانات القديمة التي لم تعد بحاجة إليها:</p>
+                <div class="flex gap-2">
+                    <button onclick="cleanupOldData('calls')" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm">
+                        🗑️ حذف النداءات القديمة
+                    </button>
+                    <button onclick="cleanupOldData('alerts')" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm">
+                        🗑️ حذف التنبيهات القديمة
+                    </button>
+                    <button onclick="cleanupOldData('all')" class="bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-800 text-sm">
+                        🗑️ حذف كل البيانات المؤقتة
+                    </button>
+                </div>
+                <p class="text-xs text-gray-600 mt-2">* سيتم الاحتفاظ بالعيادات والأطباء والإعدادات</p>
+            </div>
         </div>
 
         <!-- Back Button -->
@@ -325,17 +424,15 @@
 
     <script>
         // Firebase Configuration - استبدل بمعلومات Firebase الخاصة بك
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyArFKjBYsFhsPyJPJpjLhH2eSEHlUFEzhI",
-  authDomain: "queue-717d5.firebaseapp.com",
-  databaseURL: "https://queue-717d5-default-rtdb.firebaseio.com",
-  projectId: "queue-717d5",
-  storageBucket: "queue-717d5.firebasestorage.app",
-  messagingSenderId: "837806460328",
-  appId: "1:837806460328:web:f2070b93a2784b1b25619d",
-  measurementId: "G-GM30LE46F6"
-};
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -418,6 +515,66 @@ const firebaseConfig = {
             const duration = document.getElementById('alertDuration').value;
             db.ref('settings/alertDuration').set(parseInt(duration));
             alert('تم حفظ مدة التنبيه');
+        }
+
+        function saveAutoCleanup() {
+            const enabled = document.getElementById('autoCleanup').checked;
+            db.ref('settings/autoCleanup').set(enabled);
+            
+            if (enabled) {
+                // Schedule cleanup for midnight
+                scheduleAutoCleanup();
+            }
+            
+            alert('تم حفظ إعدادات التنظيف التلقائي');
+        }
+
+        function scheduleAutoCleanup() {
+            // Calculate time until midnight
+            const now = new Date();
+            const midnight = new Date();
+            midnight.setHours(24, 0, 0, 0);
+            const timeUntilMidnight = midnight - now;
+
+            setTimeout(() => {
+                performAutoCleanup();
+                // Schedule next cleanup (24 hours)
+                setInterval(performAutoCleanup, 24 * 60 * 60 * 1000);
+            }, timeUntilMidnight);
+        }
+
+        function performAutoCleanup() {
+            const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+            
+            // Clean calls older than 24 hours
+            db.ref('calls').orderByChild('timestamp').endAt(oneDayAgo).once('value', (snapshot) => {
+                snapshot.forEach(child => {
+                    child.ref.remove();
+                });
+            });
+
+            // Clean alerts older than 24 hours
+            db.ref('alerts').orderByChild('timestamp').endAt(oneDayAgo).once('value', (snapshot) => {
+                snapshot.forEach(child => {
+                    child.ref.remove();
+                });
+            });
+
+            // Clean doctor alerts older than 24 hours
+            db.ref('doctorAlerts').orderByChild('timestamp').endAt(oneDayAgo).once('value', (snapshot) => {
+                snapshot.forEach(child => {
+                    child.ref.remove();
+                });
+            });
+
+            // Clean control alerts older than 24 hours
+            db.ref('controlAlerts').orderByChild('timestamp').endAt(oneDayAgo).once('value', (snapshot) => {
+                snapshot.forEach(child => {
+                    child.ref.remove();
+                });
+            });
+
+            console.log('Auto-cleanup completed at:', new Date().toLocaleString('ar-EG'));
         }
 
         function saveMediaSettings() {
