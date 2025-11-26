@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>شاشة العرض</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
-        body { font-family: 'Cairo', sans-serif; overflow: hidden; background: linear-gradient(135deg,#eff6ff,#e9d5ff); }
+        body { font-family: 'Cairo', sans-serif; overflow: hidden; }
         
         @keyframes slideDown {
             from { transform: translateY(-100%); opacity: 0; }
@@ -40,13 +40,9 @@
         .clinic-card.paused {
             opacity: 0.5;
         }
-
-        /* prevent body scaling causing scrollbars */
-        html, body { height: 100%; }
     </style>
 </head>
-<body class="h-screen flex flex-col">
-
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 h-screen flex flex-col">
     <!-- Top Bar -->
     <div class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white px-6 py-3 flex items-center justify-between shadow-lg">
         <div class="flex items-center gap-4">
@@ -57,20 +53,12 @@
         </div>
         <div class="flex items-center gap-6">
             <!-- Settings Menu Button -->
-            <button onclick="toggleSettingsMenu()" class="bg-white bg-opacity-20 hover:bg-opacity-30 p-2 rounded-lg transition-all">
+            <button onclick="toggleSettingsMenu(event)" class="bg-white bg-opacity-20 hover:bg-opacity-30 p-2 rounded-lg transition-all">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 </svg>
             </button>
-
-            <!-- Zoom buttons in the top bar as requested -->
-            <div class="flex gap-2 items-center">
-                <button onclick="zoomIn()" title="تكبير" class="bg-white text-gray-800 px-3 py-2 rounded-lg font-bold">🔍+</button>
-                <button onclick="zoomOut()" title="تصغير" class="bg-white text-gray-800 px-3 py-2 rounded-lg font-bold">🔍-</button>
-                <button onclick="resetZoom()" title="إعادة تعيين التكبير" class="bg-white text-gray-800 px-3 py-2 rounded-lg font-bold">⟲</button>
-            </div>
-
             <select id="screenSelect" class="bg-white text-gray-800 px-4 py-2 rounded-lg font-bold">
                 <option value="1">الشاشة 1</option>
                 <option value="2">الشاشة 2</option>
@@ -81,7 +69,6 @@
                 <div id="currentTime" class="text-xl font-bold"></div>
                 <div id="currentDate" class="text-sm"></div>
             </div>
-            <button onclick="toggleFullscreen()" id="fullscreenBtn" class="bg-white text-gray-800 px-3 py-2 rounded-lg font-bold">📺 تفعيل ملء الشاشة</button>
         </div>
     </div>
 
@@ -121,7 +108,7 @@
             <!-- Fullscreen -->
             <div>
                 <label class="block text-gray-700 font-bold mb-2">وضع ملء الشاشة:</label>
-                <button onclick="toggleFullscreen()" id="fullscreenBtnMenu" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-bold">
+                <button onclick="toggleFullscreen()" id="fullscreenBtn" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-bold">
                     📺 تفعيل ملء الشاشة
                 </button>
             </div>
@@ -210,22 +197,19 @@
     </div>
 
     <script>
-        // Firebase config (كما أرسلت)
         const firebaseConfig = {
-          apiKey: "AIzaSyArFKjBYsFhsPyJPJpjLhH2eSEHlUFEzhI",
-          authDomain: "queue-717d5.firebaseapp.com",
-          databaseURL: "https://queue-717d5-default-rtdb.firebaseio.com",
-          projectId: "queue-717d5",
-          storageBucket: "queue-717d5.firebasestorage.app",
-          messagingSenderId: "837806460328",
-          appId: "1:837806460328:web:f2070b93a2784b1b25619d",
-          measurementId: "G-GM30LE46F6"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Variables
         let currentScreen = 1;
         let audioPath = 'audio/';
         let videoPath = 'media/';
@@ -234,35 +218,23 @@
         let videos = [];
         let currentVideoIndex = 0;
         let audioCache = {};
+        let videoCache = {};
         let newsTickerInterval;
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
         window.onload = function() {
             updateDateTime();
             setInterval(updateDateTime, 1000);
-
+            
             loadSettings();
             loadClinics();
             listenForCalls();
             listenForAlerts();
             loadVideos();
-
-            // Sync top select with settings menu select
+            
             document.getElementById('screenSelect').addEventListener('change', (e) => {
                 currentScreen = parseInt(e.target.value);
-                document.getElementById('screenSelectMenu').value = currentScreen;
                 loadClinics();
             });
-
-            document.getElementById('screenSelectMenu').addEventListener('change', (e) => {
-                currentScreen = parseInt(e.target.value);
-                document.getElementById('screenSelect').value = currentScreen;
-                loadClinics();
-            });
-
-            // set initial icons
-            updatePlayPauseIcons();
-            updateMuteIcons();
         };
 
         function updateDateTime() {
@@ -377,7 +349,6 @@
         function listenForCalls() {
             db.ref('calls').orderByChild('timestamp').limitToLast(1).on('child_added', (snapshot) => {
                 const call = snapshot.val();
-                if (!call) return;
                 if (call.timestamp > Date.now() - 5000) {
                     // Check if the clinic is on current screen
                     db.ref('clinics/' + call.clinicId).once('value', (clinicSnapshot) => {
@@ -396,7 +367,6 @@
         function listenForAlerts() {
             db.ref('alerts').orderByChild('timestamp').limitToLast(1).on('child_added', (snapshot) => {
                 const alert = snapshot.val();
-                if (!alert) return;
                 if (alert.timestamp > Date.now() - 5000) {
                     showNotification(alert.message, new Date(alert.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }));
                 }
@@ -421,8 +391,8 @@
             const time = new Date(call.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
             showNotification(message, time);
             
-            // Play audio
-            await playCallAudio(call.number, call.clinicName);
+            // Play audio with clinic NUMBER
+            await playCallAudio(call.number, call.clinicName, call.clinicNumber);
         }
 
         function showNotification(text, time) {
@@ -437,52 +407,39 @@
             }, alertDuration * 1000);
         }
 
-        async function playCallAudio(number, clinicName) {
+        async function playCallAudio(number, clinicName, clinicNumber) {
             try {
-                // Play ding
+                // Play ding first
                 await playAudioWithRate(audioPath + 'ding.mp3', 1);
                 
-                // Play number with speech rate (try mp3 then fallback to TTS)
-                try {
-                    await playAudioWithRate(audioPath + number + '.mp3', speechRate);
-                } catch(e) {
-                    // fallback to TTS for number
-                    speakText(number);
-                }
-
-                // Try to find clinic audio and play, else TTS clinic name
-                const clinicsSnap = await db.ref('clinics').once('value');
-                const clinics = clinicsSnap.val() || {};
-                const clinic = Object.values(clinics).find(c => c.name === clinicName);
-                if (clinic) {
-                    try {
-                        await playAudioWithRate(audioPath + 'clinic' + clinic.number + '.mp3', speechRate);
-                    } catch(e) {
-                        speakText(`التوجه إلى ${clinicName}`);
-                    }
-                } else {
-                    speakText(`التوجه إلى ${clinicName}`);
-                }
+                // Play number with speech rate
+                await playAudioWithRate(audioPath + number + '.mp3', speechRate);
+                
+                // Play clinic audio using clinic NUMBER (not order)
+                await playAudioWithRate(audioPath + 'clinic' + clinicNumber + '.mp3', speechRate);
             } catch (err) {
-                console.log('Audio play error, fallback to TTS', err);
+                console.log('Audio file not found, using TTS:', err);
                 speakText(`على العميل رقم ${number} التوجه إلى ${clinicName}`);
             }
         }
 
         async function playAudioWithRate(url, rate) {
-            // Uses WebAudio for playback rate control
             return new Promise(async (resolve, reject) => {
                 try {
+                    // Fetch audio file
                     const response = await fetch(url);
-                    if (!response.ok) throw new Error('not-found');
                     const arrayBuffer = await response.arrayBuffer();
+                    
+                    // Decode audio data
                     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                    
+                    // Create source
                     const source = audioContext.createBufferSource();
                     source.buffer = audioBuffer;
                     source.playbackRate.value = rate;
                     source.connect(audioContext.destination);
-
-                    source.onended = () => resolve();
+                    
+                    source.onended = resolve;
                     source.start(0);
                 } catch (error) {
                     reject(error);
@@ -490,18 +447,9 @@
             });
         }
 
-        // single playAudio (used by preload and fallback)
-        function playAudioSimple(src) {
+        function playAudio(src) {
             return new Promise((resolve, reject) => {
-                const filename = src.split('/').pop();
-                let audio;
-                
-                if (audioCache[filename]) {
-                    audio = audioCache[filename].cloneNode();
-                } else {
-                    audio = new Audio(src);
-                }
-                
+                const audio = new Audio(src);
                 audio.onended = resolve;
                 audio.onerror = reject;
                 audio.play().catch(reject);
@@ -514,8 +462,6 @@
                 utterance.lang = 'ar-SA';
                 utterance.rate = speechRate;
                 speechSynthesis.speak(utterance);
-            } else {
-                console.log('TTS not supported');
             }
         }
 
@@ -543,7 +489,7 @@
                     video.addEventListener('ended', () => {
                         currentVideoIndex = (currentVideoIndex + 1) % videos.length;
                         video.src = videos[currentVideoIndex];
-                        video.play().catch(err => console.log('video play error', err));
+                        video.play();
                     });
                     
                     video.addEventListener('error', () => {
@@ -551,7 +497,7 @@
                         currentVideoIndex = (currentVideoIndex + 1) % videos.length;
                         if (currentVideoIndex < videos.length) {
                             video.src = videos[currentVideoIndex];
-                            video.play().catch(err => console.log('video play error', err));
+                            video.play();
                         }
                     });
                     
@@ -560,43 +506,30 @@
             });
         }
 
-        // Play / Pause for video
         function togglePlayPause() {
-            const video = document.getElementById('videoPlayer');
-            if (video.paused) {
-                video.play().catch(() => {});
-            } else {
-                video.pause();
-            }
-            updatePlayPauseIcons();
-        }
-
-        function updatePlayPauseIcons() {
             const video = document.getElementById('videoPlayer');
             const playIcon = document.getElementById('playIcon');
             const pauseIcon = document.getElementById('pauseIcon');
-
+            
             if (video.paused) {
-                playIcon.classList.remove('hidden');
-                pauseIcon.classList.add('hidden');
-            } else {
+                video.play();
                 playIcon.classList.add('hidden');
                 pauseIcon.classList.remove('hidden');
+            } else {
+                video.pause();
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
             }
         }
 
-        // Mute toggle
         function toggleMute() {
-            const video = document.getElementById('videoPlayer');
-            video.muted = !video.muted;
-            updateMuteIcons();
-        }
-
-        function updateMuteIcons() {
             const video = document.getElementById('videoPlayer');
             const muteIcon = document.getElementById('muteIcon');
             const unmuteIcon = document.getElementById('unmuteIcon');
-            if (video.muted || video.volume === 0) {
+            
+            video.muted = !video.muted;
+            
+            if (video.muted) {
                 muteIcon.classList.remove('hidden');
                 unmuteIcon.classList.add('hidden');
             } else {
@@ -605,21 +538,28 @@
             }
         }
 
-        // Volume change
-        function changeVolume(val) {
+        function changeVolume(value) {
             const video = document.getElementById('videoPlayer');
-            video.volume = val / 100;
+            video.volume = value / 100;
             video.muted = false;
-            document.getElementById('volumeDisplay').textContent = val + '%';
-            updateMuteIcons();
+            document.getElementById('volumeDisplay').textContent = value + '%';
+            
+            const muteIcon = document.getElementById('muteIcon');
+            const unmuteIcon = document.getElementById('unmuteIcon');
+            muteIcon.classList.add('hidden');
+            unmuteIcon.classList.remove('hidden');
         }
 
-        // Preload audio
         function preloadAudio() {
+            // Preload common audio files
             const commonFiles = ['ding.mp3'];
-            for (let i = 1; i <= 100; i++) commonFiles.push(i + '.mp3');
-            for (let i = 1; i <= 20; i++) commonFiles.push('clinic' + i + '.mp3');
-
+            for (let i = 1; i <= 100; i++) {
+                commonFiles.push(i + '.mp3');
+            }
+            for (let i = 1; i <= 20; i++) {
+                commonFiles.push('clinic' + i + '.mp3');
+            }
+            
             commonFiles.forEach(file => {
                 const audio = new Audio(audioPath + file);
                 audio.preload = 'auto';
@@ -627,82 +567,22 @@
             });
         }
 
-        // Notification & UI helpers already included above
-
-        // Settings menu toggle
-        function toggleSettingsMenu() {
-            const menu = document.getElementById('settingsMenu');
-            menu.classList.toggle('hidden');
-        }
-
-        // Fullscreen toggle
-        function toggleFullscreen() {
-            const elem = document.documentElement;
-            const btn = document.getElementById('fullscreenBtn');
-            const btnMenu = document.getElementById('fullscreenBtnMenu');
-
-            if (!document.fullscreenElement) {
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen();
-                } else if (elem.webkitRequestFullscreen) { /* Safari */
-                    elem.webkitRequestFullscreen();
+        function playAudio(src) {
+            return new Promise((resolve, reject) => {
+                const filename = src.split('/').pop();
+                let audio;
+                
+                if (audioCache[filename]) {
+                    audio = audioCache[filename].cloneNode();
+                } else {
+                    audio = new Audio(src);
                 }
-                if (btn) btn.textContent = "📺 إيقاف ملء الشاشة";
-                if (btnMenu) btnMenu.textContent = "📺 إيقاف ملء الشاشة";
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                }
-                if (btn) btn.textContent = "📺 تفعيل ملء الشاشة";
-                if (btnMenu) btnMenu.textContent = "📺 تفعيل ملء الشاشة";
-            }
-        }
-
-        // Zoom controls (applies transform to main content to keep header fixed)
-        let zoomLevel = 1;
-        const minZoom = 0.5;
-        const maxZoom = 2.5;
-
-        function zoomIn() {
-            zoomLevel = Math.min(maxZoom, +(zoomLevel + 0.1).toFixed(2));
-            applyZoom();
-        }
-
-        function zoomOut() {
-            zoomLevel = Math.max(minZoom, +(zoomLevel - 0.1).toFixed(2));
-            applyZoom();
-        }
-
-        function resetZoom() {
-            zoomLevel = 1;
-            applyZoom();
-        }
-
-        function applyZoom() {
-            // We'll scale the middle area (main content) but keep header/footer normal
-            const mainAreas = document.querySelectorAll('.flex-1, .w-1/4, .w-1/6');
-            mainAreas.forEach(el => {
-                el.style.transform = `scale(${zoomLevel})`;
-                el.style.transformOrigin = 'top right';
+                
+                audio.onended = resolve;
+                audio.onerror = reject;
+                audio.play().catch(reject);
             });
-            document.getElementById('zoomLevel').textContent = Math.round(zoomLevel * 100) + '%';
         }
-
-        // update icons when video state changes
-        document.getElementById('videoPlayer')?.addEventListener?.('play', updatePlayPauseIcons);
-        document.getElementById('videoPlayer')?.addEventListener?.('pause', updatePlayPauseIcons);
-        document.getElementById('videoPlayer')?.addEventListener?.('volumechange', updateMuteIcons);
-
-        // ensure event listeners exist after DOM ready
-        document.addEventListener('visibilitychange', () => {
-            // resume audioContext on user interaction / visibility
-            if (document.visibilityState === 'visible' && audioContext.state === 'suspended') {
-                audioContext.resume().catch(()=>{});
-            }
-        });
-
     </script>
 </body>
 </html>
