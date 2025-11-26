@@ -63,25 +63,11 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 </svg>
             </button>
-
-            <!-- Zoom buttons in the top bar as requested -->
-            <div class="flex gap-2 items-center">
-                <button onclick="zoomIn()" title="تكبير" class="bg-white text-gray-800 px-3 py-2 rounded-lg font-bold">🔍+</button>
-                <button onclick="zoomOut()" title="تصغير" class="bg-white text-gray-800 px-3 py-2 rounded-lg font-bold">🔍-</button>
-                <button onclick="resetZoom()" title="إعادة تعيين التكبير" class="bg-white text-gray-800 px-3 py-2 rounded-lg font-bold">⟲</button>
-            </div>
-
-            <select id="screenSelect" class="bg-white text-gray-800 px-4 py-2 rounded-lg font-bold">
-                <option value="1">الشاشة 1</option>
-                <option value="2">الشاشة 2</option>
-                <option value="3">الشاشة 3</option>
-                <option value="4">الشاشة 4</option>
-            </select>
+            
             <div class="text-right">
                 <div id="currentTime" class="text-xl font-bold"></div>
                 <div id="currentDate" class="text-sm"></div>
             </div>
-            <button onclick="toggleFullscreen()" id="fullscreenBtn" class="bg-white text-gray-800 px-3 py-2 rounded-lg font-bold">📺 تفعيل ملء الشاشة</button>
         </div>
     </div>
 
