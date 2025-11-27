@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
         body { font-family: 'Cairo', sans-serif; }
@@ -164,7 +166,102 @@
             </div>
         </div>
     </div>
+<button onclick="showUrgentCase()" class="bg-red-600 text-white p-6 rounded-xl shadow-lg hover:bg-red-700 transition-all transform hover:scale-105">
+    <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+    </svg>
+    <span class="text-2xl font-bold">حالة طارئة</span>
+</button>
 
+<!-- Urgent Case Modal -->
+<div id="urgentCaseModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full mx-4">
+        <div class="text-center mb-6">
+            <div class="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-red-600 mb-2">استعجال حالة طارئة ⚠️</h3>
+            <p class="text-gray-600">سيتم نقل الحالة إلى أول الطابور وتمييزها بلون أحمر</p>
+        </div>
+
+        <div class="space-y-4">
+            <!-- Current or New Patient -->
+            <div>
+                <label class="block text-gray-700 font-bold mb-2">نوع الحالة:</label>
+                <div class="flex gap-4">
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="urgentType" value="current" class="hidden urgent-type-radio" checked onchange="toggleUrgentFields()">
+                        <div class="urgent-type-option border-2 border-red-600 bg-red-50 rounded-lg p-4 text-center">
+                            <p class="font-bold text-red-600">مريض موجود</p>
+                            <p class="text-sm text-gray-600">له رقم حالياً</p>
+                        </div>
+                    </label>
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="urgentType" value="new" class="hidden urgent-type-radio" onchange="toggleUrgentFields()">
+                        <div class="urgent-type-option border-2 border-gray-300 rounded-lg p-4 text-center hover:border-red-600">
+                            <p class="font-bold text-red-600">مريض جديد</p>
+                            <p class="text-sm text-gray-600">بدون رقم</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- For Current Patient -->
+            <div id="currentPatientSection">
+                <label class="block text-gray-700 font-bold mb-2">رقم المريض الحالي:</label>
+                <input type="number" id="urgentCurrentNumber" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-red-600 focus:outline-none text-lg text-center font-bold" placeholder="أدخل الرقم">
+            </div>
+
+            <!-- For New Patient -->
+            <div id="newPatientSection" class="hidden">
+                <label class="block text-gray-700 font-bold mb-2">اسم المريض (اختياري):</label>
+                <input type="text" id="urgentPatientName" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-red-600 focus:outline-none" placeholder="اسم المريض">
+            </div>
+
+            <!-- Reason -->
+            <div>
+                <label class="block text-gray-700 font-bold mb-2">سبب الاستعجال:</label>
+                <select id="urgentReason" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-red-600 focus:outline-none">
+                    <option value="حالة طوارئ">حالة طوارئ</option>
+                    <option value="إسعاف">إسعاف</option>
+                    <option value="حالة حرجة">حالة حرجة</option>
+                    <option value="طفل صغير">طفل صغير</option>
+                    <option value="مسن">مسن</option>
+                    <option value="حامل">سيدة حامل</option>
+                    <option value="ذوي احتياجات خاصة">ذوي احتياجات خاصة</option>
+                    <option value="أخرى">أخرى</option>
+                </select>
+            </div>
+
+            <!-- Notes -->
+            <div>
+                <label class="block text-gray-700 font-bold mb-2">ملاحظات (اختياري):</label>
+                <textarea id="urgentNotes" rows="2" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-red-600 focus:outline-none" placeholder="أي ملاحظات إضافية"></textarea>
+            </div>
+
+            <!-- Warning -->
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
+                <p class="text-sm text-gray-700">
+                    <strong>تنبيه:</strong> سيتم تمييز الحالة بلون أحمر في شاشة العرض وستظهر في أعلى الطابور
+                </p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-4">
+                <button onclick="markAsUrgent()" class="flex-1 bg-red-600 text-white px-6 py-4 rounded-lg font-bold text-lg hover:bg-red-700">
+                    ⚠️ تأكيد الاستعجال
+                </button>
+                <button onclick="closeUrgentModal()" class="flex-1 bg-gray-600 text-white px-6 py-4 rounded-lg font-bold text-lg hover:bg-gray-700">
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
     <script>
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -177,6 +274,9 @@ const firebaseConfig = {
   appId: "1:837806460328:web:f2070b93a2784b1b25619d",
   measurementId: "G-GM30LE46F6"
 };
+
+        const firestore = firebase.firestore();
+
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
@@ -520,6 +620,200 @@ const firebaseConfig = {
         function closeModal() {
             document.getElementById('modalOverlay').classList.add('hidden');
         }
+
+
+        document.querySelectorAll('.urgent-type-radio').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.querySelectorAll('.urgent-type-option').forEach(opt => {
+            opt.classList.remove('border-red-600', 'bg-red-50');
+            opt.classList.add('border-gray-300');
+        });
+        if (this.checked) {
+            this.nextElementSibling.classList.add('border-red-600', 'bg-red-50');
+            this.nextElementSibling.classList.remove('border-gray-300');
+        }
+    });
+});
+
+function showUrgentCase() {
+    document.getElementById('urgentCaseModal').classList.remove('hidden');
+    document.getElementById('urgentCurrentNumber').value = '';
+    document.getElementById('urgentPatientName').value = '';
+    document.getElementById('urgentReason').value = 'حالة طوارئ';
+    document.getElementById('urgentNotes').value = '';
+    toggleUrgentFields();
+}
+
+function toggleUrgentFields() {
+    const type = document.querySelector('input[name="urgentType"]:checked').value;
+    if (type === 'current') {
+        document.getElementById('currentPatientSection').classList.remove('hidden');
+        document.getElementById('newPatientSection').classList.add('hidden');
+    } else {
+        document.getElementById('currentPatientSection').classList.add('hidden');
+        document.getElementById('newPatientSection').classList.remove('hidden');
+    }
+}
+
+async function markAsUrgent() {
+    const type = document.querySelector('input[name="urgentType"]:checked').value;
+    const currentNumber = document.getElementById('urgentCurrentNumber').value;
+    const patientName = document.getElementById('urgentPatientName').value;
+    const reason = document.getElementById('urgentReason').value;
+    const notes = document.getElementById('urgentNotes').value;
+
+    if (type === 'current' && !currentNumber) {
+        alert('يرجى إدخال رقم المريض');
+        return;
+    }
+
+    if (!confirm('هل أنت متأكد من استعجال هذه الحالة؟')) return;
+
+    try {
+        let number;
+        
+        if (type === 'current') {
+            // Mark existing number as urgent
+            number = parseInt(currentNumber);
+        } else {
+            // Create new number (1 or next after current)
+            const currentClinicNumber = currentClinic.currentNumber || 0;
+            number = currentClinicNumber + 1;
+            
+            // Update clinic current number
+            await db.ref('clinics/' + currentClinicId).update({
+                currentNumber: number,
+                lastCall: Date.now()
+            });
+        }
+
+        // Create urgent call with special flag
+        const urgentData = {
+            clinicId: currentClinicId,
+            clinicName: currentClinic.name,
+            number: number,
+            timestamp: Date.now(),
+            isUrgent: true,
+            urgentReason: reason,
+            urgentNotes: notes,
+            patientName: patientName || null
+        };
+
+        await db.ref('calls').push(urgentData);
+
+        // Also store in Firestore for tracking
+        await firestore.collection('urgentCases').add({
+            ...urgentData,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            handledBy: currentUser?.email || 'unknown'
+        });
+
+        // Make the call
+        await playCallAudio(number);
+        
+        // Show notification
+        showNotification(`تم استعجال الحالة رقم ${number} - ${reason}`);
+        
+        closeUrgentModal();
+        
+        alert('✅ تم استعجال الحالة بنجاح');
+    } catch (error) {
+        console.error('Error marking urgent:', error);
+        alert('خطأ في استعجال الحالة');
+    }
+}
+
+function closeUrgentModal() {
+    document.getElementById('urgentCaseModal').classList.add('hidden');
+}
+</script>
+
+<!-- 
+في display.html، أضف هذا CSS لتمييز الحالات الطارئة
+-->
+<style>
+.urgent-call {
+    animation: urgent-pulse 1s infinite;
+    border: 3px solid #dc2626 !important;
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+}
+
+@keyframes urgent-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+    50% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+}
+
+.urgent-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #dc2626;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    animation: badge-pulse 1s infinite;
+}
+
+@keyframes badge-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+</style>
+
+<!-- 
+في display.html في JavaScript، عدل دالة handleCall لتدعم الحالات الطارئة:
+-->
+<script>
+async function handleCall(call) {
+    // Highlight clinic card
+    const clinicCard = document.getElementById('clinic-' + call.clinicId);
+    if (clinicCard) {
+        // Add urgent class if it's urgent
+        if (call.isUrgent) {
+            clinicCard.classList.add('urgent-call');
+            
+            // Add urgent badge
+            if (!clinicCard.querySelector('.urgent-badge')) {
+                const badge = document.createElement('div');
+                badge.className = 'urgent-badge';
+                badge.textContent = '⚠️ طارئ';
+                clinicCard.style.position = 'relative';
+                clinicCard.appendChild(badge);
+            }
+            
+            // Remove after 10 seconds
+            setTimeout(() => {
+                clinicCard.classList.remove('urgent-call');
+                const badge = clinicCard.querySelector('.urgent-badge');
+                if (badge) badge.remove();
+            }, 10000);
+        } else {
+            clinicCard.classList.add('active', 'blink', 'bg-blue-50');
+            setTimeout(() => {
+                clinicCard.classList.remove('blink');
+                setTimeout(() => {
+                    clinicCard.classList.remove('active', 'bg-blue-50');
+                }, 3000);
+            }, 3000);
+        }
+    }
+    
+    // Show notification
+    let message = `على العميل رقم ${call.number} التوجه إلى ${call.clinicName}`;
+    if (call.isUrgent) {
+        message = `⚠️ حالة طارئة - ${message}`;
+    }
+    
+    const time = new Date(call.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+    showNotification(message, time);
+    
+    // Play audio
+    await playCallAudio(call.number, call.clinicName);
+}
+
     </script>
 </body>
 </html>
