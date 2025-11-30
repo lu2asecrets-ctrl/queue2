@@ -698,12 +698,12 @@ const firestore = firebase.firestore(); // Firestore
         const maxZoom = 2.5;
 
         function zoomIn() {
-            zoomLevel = Math.min(maxZoom, +(zoomLevel + 0.04).toFixed(2));
+            zoomLevel = Math.min(maxZoom, +(zoomLevel + 0.02).toFixed(2));
             applyZoom();
         }
 
         function zoomOut() {
-            zoomLevel = Math.max(minZoom, +(zoomLevel - 0.04).toFixed(2));
+            zoomLevel = Math.max(minZoom, +(zoomLevel - 0.02).toFixed(2));
             applyZoom();
         }
 
