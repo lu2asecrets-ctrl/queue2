@@ -51,20 +51,20 @@
         /* تعديل البنر الترويجي - على اليمين */
         .promo-banner {
             position: fixed;
-            bottom: 30px;
+            bottom: 100px;
             right: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 10px;
+            padding: 20px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             z-index: 40;
-            width: 200px;
-            min-height: 100px;
+            width: 350px;
+            min-height: 200px;
             transform: translateX(150%);
             transition: transform 0.6s ease-in-out;
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
@@ -176,7 +176,7 @@
 
     <!-- Promo Banner -->
     <div id="promoBanner" class="promo-banner">
-        <div class="flex flex-row items-center justify-center h-full">
+        <div class="flex flex-col items-center justify-center h-full">
             <img id="promoDoctorImage" src="" alt="" class="w-24 h-24 rounded-full object-cover border-3 border-white mb-4">
             <div>
                 <p id="promoDoctorName" class="text-xl font-bold mb-1"></p>
@@ -192,19 +192,19 @@
             <div id="clinicsContainer" class="flex-1 space-y-3 overflow-hidden"></div>
             
             <!-- QR Code Card -->
-<div class="bg-white rounded-xl shadow-lg p-6 mt-6 text-center">
-        <!-- النص في الأعلى -->
-    <p class="text-gray-800 font-bold text-lg mb-4">
-        لمتابعة دورك امسح الكود
-    </p>
-    
+            <div class="bg-white rounded-xl shadow-lg p-4 mt-4">
     <div class="flex items-center justify-between">
 
-    <!-- صورة QR في المنتصف وتحت النص -->
-    <div class="w-40 h-40 mx-auto bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgxrALR9twI4A0S7dnwbI-z9kTGKHiCvYSoATnRHaSKzqUvZaPdraUerTGAC4qrBtIcagjsZgylNhPHcscdmY-lY5HzKx2GT5TqezqH5uZlLdlM0NpEkUlNxmm9VSb7q5iTFoiw-wL5lsEW9-I8oGiPPZGWyPYqp5ElCIP4plZji93qzfl52xM_MPQmCCdq/s320/ALMATAR%20%281%29.png" 
-             alt="QR Code" class="w-full h-full object-cover">
-    </div>
+        <!-- النص على اليمين -->
+        <div class="text-right ml-4">
+            <p class="text-gray-700 font-bold mb-2">امسح الكود QR للدخول والمتابعة</p>
+        </div>
+
+        <!-- الصورة على اليسار -->
+        <div class="bg-gray-200 w-32 h-32 rounded-lg flex items-center justify-center overflow-hidden">
+            <!-- ضع رابط الصورة هنا -->
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhdo3j-twos4sFrJ-25QuVV5a1DECPLm2ykxxXKI1BpuELUL-O4sAsgwKbieN1WoMVPmKEAIjT88QizHDp2fqOnfGPainRXOZWEFWAxkyU5ZDwdOkGtftKBj_kLFzRm7fLWr3DGWZ0fpCir1BJrCrjuUnuoSCnUBapEptEY3nM3_Hqx6i1KEateBAAhBgRs/s256/qrchimpX256.png" alt="QR Code" class="w-full h-full object-cover">
+        </div>
 
     </div>
 </div>
@@ -357,7 +357,7 @@ const firestore = firebase.firestore(); // Firestore
             showPromoBanner();
             promoBannerInterval = setInterval(() => {
                 showPromoBanner();
-            }, 30000);
+            }, 40000);
         }
 
         async function showPromoBanner() {
