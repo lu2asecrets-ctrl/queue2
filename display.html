@@ -42,11 +42,13 @@
             opacity: 0.5;
         }
 
+        /* تعديل ارتفاع شريط الأخبار */
         .news-ticker-container {
             padding-top: 1.25rem;
             padding-bottom: 1.25rem;
         }
 
+        /* تعديل البنر الترويجي - على اليمين */
         .promo-banner {
             position: fixed;
             bottom: 100px;
@@ -76,50 +78,19 @@
             transform: translateX(150%);
         }
 
+        /* منع التمرير */
         html, body { height: 100%; }
         
+        /* عنصر رئيسي لاستهداف الزوم */
         .main-content-wrapper {
             transform-origin: top right;
             transition: transform 0.3s ease;
-        }
-
-        /* Debug panel styling */
-        .debug-panel {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 9999;
-            background: rgba(255, 68, 68, 0.9);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            max-width: 300px;
-        }
-        .debug-panel button {
-            margin: 2px;
-            padding: 5px;
-            background: white;
-            color: red;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
         }
     </style>
 </head>
 <body class="h-screen flex flex-col">
 
-    <!-- Debug Panel -->
-    <div class="debug-panel">
-        <div><strong>🔍 أدوات التشخيص</strong></div>
-        <button onclick="testPromoBanner()">اختبار UI</button>
-        <button onclick="checkFirestoreConnection()">اختبار Firestore</button>
-        <button onclick="loadAllDoctors()">عرض كل الأطباء</button>
-        <button onclick="showTodayInfo()">معلومات اليوم</button>
-        <div id="debugStatus"></div>
-    </div>
-
-    <!-- Top Bar -->
+    <!-- Top Bar - تم حذف الشاشات وزر ملء الشاشة -->
     <div class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white px-6 py-3 flex items-center justify-between shadow-lg">
         <div class="flex items-center gap-4">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,12 +98,14 @@
             </svg>
             <h1 id="centerName" class="text-2xl font-bold">المركز الطبي</h1>
         </div>
+        <!-- التاريخ والوقت جنب بعض -->
         <div class="flex items-center gap-4 text-right">
             <div id="currentTime" class="text-3xl font-bold"></div>
             <div class="text-sm">
                 <div id="currentDate" class="font-semibold"></div>
             </div>
         </div>
+        <!-- زر الإعدادات فقط -->
         <button onclick="toggleSettingsMenu()" class="bg-white bg-opacity-20 hover:bg-opacity-30 p-2 rounded-lg transition-all">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -156,6 +129,7 @@
                 </select>
             </div>
 
+            <!-- Zoom Controls متبقية فقط في القائمة -->
             <div>
                 <label class="block text-gray-700 font-bold mb-2">التكبير/التصغير:</label>
                 <div class="flex gap-2">
@@ -203,7 +177,7 @@
     <!-- Promo Banner -->
     <div id="promoBanner" class="promo-banner">
         <div class="flex flex-col items-center justify-center h-full">
-            <img id="promoDoctorImage" src="" alt="Doctor" class="w-24 h-24 rounded-full object-cover border-3 border-white mb-4" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=دكتور&background=667eea&color=fff&size=80';">
+            <img id="promoDoctorImage" src="" alt="" class="w-24 h-24 rounded-full object-cover border-3 border-white mb-4">
             <div>
                 <p id="promoDoctorName" class="text-xl font-bold mb-1"></p>
                 <p id="promoSpecialty" class="text-base opacity-90"></p>
@@ -211,18 +185,18 @@
         </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- Main Content - تمت إضافة ال wrapper -->
     <div class="main-content-wrapper flex-1 flex overflow-hidden">
         <!-- Clinics Column -->
         <div class="w-1/4 p-4 overflow-hidden flex flex-col">
             <div id="clinicsContainer" class="flex-1 space-y-3 overflow-hidden"></div>
             
             <!-- QR Code Card -->
-            <div class="bg-white rounded-xl shadow-lg p-3 mt-4 text-center">
-                <p class="text-gray-800 font-bold text-sm mb-2">لمتابعة دورك امسح الكود</p>
-                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgxrALR9twI4A0S7dnwbI-z9kTGKHiCvYSoATnRHaSKzqUvZaPdraUerTGAC4qrBtIcagjsZgylNhPHcscdmY-lY5HzKx2GT5TqezqH5uZlLdlM0NpEkUlNxmm9VSb7q5iTFoiw-wL5lsEW9-I8oGiPPZGWyPYqp5ElCIP4plZji93qzfl52xM_MPQmCCdq/s320/ALMATAR%20%281%29.png"
-                     alt="QR Code" class="w-20 h-20 mx-auto rounded-lg object-cover">
-            </div>
+        <div class="bg-white rounded-xl shadow-lg p-3 mt-4 text-center">
+            <p class="text-gray-800 font-bold text-sm mb-2">لمتابعة دورك امسح الكود</p>
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgxrALR9twI4A0S7dnwbI-z9kTGKHiCvYSoATnRHaSKzqUvZaPdraUerTGAC4qrBtIcagjsZgylNhPHcscdmY-lY5HzKx2GT5TqezqH5uZlLdlM0NpEkUlNxmm9VSb7q5iTFoiw-wL5lsEW9-I8oGiPPZGWyPYqp5ElCIP4plZji93qzfl52xM_MPQmCCdq/s320/ALMATAR%20%281%29.png"
+                 alt="QR Code" class="w-20 h-20 mx-auto rounded-lg object-cover">
+        </div>
         </div>
 
         <!-- Video Player -->
@@ -272,31 +246,9 @@ const firebaseConfig = {
   measurementId: "G-GM30LE46F6"
 };
 
-// ✅ تم إضافة وضع التشخيص المتقدم
-const DEBUG_MODE = true;
-let firestoreReady = false;
-
-function debugLog(...args) {
-    if (DEBUG_MODE) {
-        console.log('%c[FIRESTORE DEBUG]', 'background: #ff4444; color: white; padding: 2px 5px;', ...args);
-        const debugDiv = document.getElementById('debugStatus');
-        if (debugDiv) {
-            debugDiv.innerHTML = args.join('<br>');
-        }
-    }
-}
-
-// تهيئة Firebase
-try {
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const firestore = firebase.firestore();
-    firestoreReady = true;
-    debugLog('✅ Firebase initialized successfully');
-} catch (error) {
-    debugLog('❌ Firebase initialization error:', error.message);
-    firestoreReady = false;
-}
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database(); // Realtime Database
+const firestore = firebase.firestore(); // Firestore
 
         // Variables
         let currentScreen = 1;
@@ -309,7 +261,7 @@ try {
         let audioCache = {};
         let newsTickerInterval;
         let promoBannerInterval;
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)());
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
         window.onload = function() {
             updateDateTime();
@@ -321,14 +273,7 @@ try {
             listenForAlerts();
             loadVideos();
             
-            // بدء البانر بعد التأكد من التحميل
-            setTimeout(() => {
-                if (firestoreReady) {
-                    startPromoBanners();
-                } else {
-                    debugLog('❌ Cannot start promo banners - Firestore not ready');
-                }
-            }, 5000);
+            startPromoBanners();
 
             document.getElementById('screenSelectMenu').addEventListener('change', (e) => {
                 currentScreen = parseInt(e.target.value);
@@ -397,7 +342,6 @@ try {
         }
 
         function startPromoBanners() {
-            debugLog('🚀 Starting promo banners...');
             showPromoBanner();
             promoBannerInterval = setInterval(() => {
                 showPromoBanner();
@@ -405,47 +349,20 @@ try {
         }
 
         async function showPromoBanner() {
-            if (!firestoreReady) {
-                debugLog('❌ Firestore not ready, skipping banner');
-                return;
-            }
-
             try {
                 const today = new Date();
                 const dayName = today.toLocaleDateString('ar-EG', { weekday: 'long' });
                 
-                debugLog('=== PROMO BANNER QUERY ===');
-                debugLog('📅 Day name from JS:', dayName);
-                debugLog('🔍 Query: doctors where workStatus == "نشط" && workDays array-contains "' + dayName + '"');
-
                 const doctorsSnap = await firestore.collection('doctors')
                     .where('workStatus', '==', 'نشط')
                     .where('workDays', 'array-contains', dayName)
                     .get();
 
-                debugLog('✅ Query successful! Found:', doctorsSnap.docs.length, 'doctors');
-                
                 const banner = document.getElementById('promoBanner');
                 
                 if (doctorsSnap.empty) {
-                    debugLog('⚠️ No doctors found - hiding banner');
-                    debugLog('💡 SOLUTION: Check that workDays array contains exactly "' + dayName + '"');
                     banner.classList.remove('show');
                     banner.classList.add('hide');
-                    
-                    // في وضع التصحيح، اعرض بيانات تجريبية
-                    if (DEBUG_MODE) {
-                        debugLog('🧪 DEBUG MODE: Showing test doctor');
-                        document.getElementById('promoDoctorImage').src = 'https://ui-avatars.com/api/?name=دكتور+تجريبي&background=667eea&color=fff&size=80';
-                        document.getElementById('promoDoctorName').textContent = 'دكتور تجريبي';
-                        document.getElementById('promoSpecialty').textContent = 'اختبار النظام';
-                        banner.classList.remove('hide');
-                        banner.classList.add('show');
-                        setTimeout(() => {
-                            banner.classList.remove('show');
-                            banner.classList.add('hide');
-                        }, 5000);
-                    }
                     return;
                 }
 
@@ -453,15 +370,10 @@ try {
                 const doctorDoc = doctorsSnap.docs[randomIndex];
                 const doctor = doctorDoc.data();
                 
-                debugLog('👨‍⚕️ Selected doctor:', doctor.name);
-
-                const doctorName = doctor.name || 'دكتور';
-                const doctorSpecialty = doctor.specialty || 'غير محدد';
-                const doctorImage = doctor.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(doctorName)}&background=667eea&color=fff&size=80`;
-                
-                document.getElementById('promoDoctorImage').src = doctorImage;
-                document.getElementById('promoDoctorName').textContent = doctorName;
-                document.getElementById('promoSpecialty').textContent = doctorSpecialty;
+                document.getElementById('promoDoctorImage').src = doctor.imageUrl || 
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(doctor.name)}&background=667eea&color=fff&size=80`;
+                document.getElementById('promoDoctorName').textContent = doctor.name;
+                document.getElementById('promoSpecialty').textContent = doctor.specialty || '';
 
                 banner.classList.remove('hide');
                 banner.classList.add('show');
@@ -472,87 +384,12 @@ try {
                 }, 20000);
 
             } catch (error) {
-                console.error('❌ ERROR in showPromoBanner:', error);
-                debugLog('❌ Firestore error:', error.message);
-                
+                console.error('Error showing promo banner:', error);
                 const banner = document.getElementById('promoBanner');
                 banner.classList.remove('show');
                 banner.classList.add('hide');
-                
-                // تحذير الأندركس
-                if (error.message && error.message.includes('index')) {
-                    debugLog('🔥 INDEX ERROR! Create composite index in Firebase Console');
-                    debugLog('⚙️ Fields: workStatus (Asc), workDays (Asc)');
-                }
             }
         }
-
-        // ✅ دوال تشخيص جديدة
-        window.checkFirestoreConnection = async function() {
-            debugLog('🔄 Testing Firestore connection...');
-            try {
-                const testSnap = await firestore.collection('doctors').limit(1).get();
-                debugLog('✅ Firestore connected! Found', testSnap.docs.length, 'doctor(s)');
-                return true;
-            } catch (error) {
-                debugLog('❌ Firestore connection failed:', error.message);
-                return false;
-            }
-        };
-
-        window.loadAllDoctors = async function() {
-            debugLog('🔄 Loading ALL doctors (ignoring day filter)...');
-            try {
-                const allDoctors = await firestore.collection('doctors').get();
-                debugLog('📊 Total doctors in database:', allDoctors.docs.length);
-                
-                allDoctors.docs.forEach((doc, index) => {
-                    const data = doc.data();
-                    debugLog(`👨‍⚕️ Doctor ${index + 1}:`, data.name, '| Status:', data.workStatus, '| Days:', data.workDays);
-                });
-                
-                if (allDoctors.docs.length > 0) {
-                    debugLog('✅ Test banner with first doctor...');
-                    const firstDoctor = allDoctors.docs[0].data();
-                    document.getElementById('promoDoctorImage').src = firstDoctor.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(firstDoctor.name)}&background=667eea&color=fff&size=80`;
-                    document.getElementById('promoDoctorName').textContent = firstDoctor.name;
-                    document.getElementById('promoSpecialty').textContent = firstDoctor.specialty || 'غير محدد';
-                    
-                    const banner = document.getElementById('promoBanner');
-                    banner.classList.remove('hide');
-                    banner.classList.add('show');
-                    setTimeout(() => {
-                        banner.classList.remove('show');
-                        banner.classList.add('hide');
-                    }, 5000);
-                }
-            } catch (error) {
-                debugLog('❌ Error loading all doctors:', error.message);
-            }
-        };
-
-        window.showTodayInfo = function() {
-            const today = new Date();
-            const dayName = today.toLocaleDateString('ar-EG', { weekday: 'long' });
-            debugLog('📅 Today is:', dayName);
-            debugLog('🕐 Current time:', today.toLocaleString('ar-EG'));
-        };
-
-        window.testPromoBanner = function() {
-            debugLog('🧪 Manual banner test triggered');
-            const banner = document.getElementById('promoBanner');
-            document.getElementById('promoDoctorImage').src = 'https://ui-avatars.com/api/?name=دكتور+تجريبي&background=667eea&color=fff&size=80';
-            document.getElementById('promoDoctorName').textContent = 'دكتور تجريبي';
-            document.getElementById('promoSpecialty').textContent = 'اختبار النظام';
-            
-            banner.classList.remove('hide');
-            banner.classList.add('show');
-            
-            setTimeout(() => {
-                banner.classList.remove('show');
-                banner.classList.add('hide');
-            }, 5000);
-        };
 
         function loadClinics() {
             db.ref('clinics').on('value', (snapshot) => {
@@ -829,6 +666,7 @@ try {
 
         function toggleFullscreen() {
             const elem = document.documentElement;
+            const btn = document.getElementById('fullscreenBtn');
             const btnMenu = document.getElementById('fullscreenBtnMenu');
 
             if (!document.fullscreenElement) {
@@ -837,6 +675,7 @@ try {
                 } else if (elem.webkitRequestFullscreen) {
                     elem.webkitRequestFullscreen();
                 }
+                if (btn) btn.textContent = "📺 إيقاف ملء الشاشة";
                 if (btnMenu) btnMenu.textContent = "📺 إيقاف ملء الشاشة";
             } else {
                 if (document.exitFullscreen) {
@@ -844,10 +683,12 @@ try {
                 } else if (document.webkitExitFullscreen) {
                     document.webkitExitFullscreen();
                 }
+                if (btn) btn.textContent = "📺 تفعيل ملء الشاشة";
                 if (btnMenu) btnMenu.textContent = "📺 تفعيل ملء الشاشة";
             }
         }
 
+        // ** تم إصلاح مشكلة الزوم: استهداف الـ wrapper الرئيسي **
         let zoomLevel = 1;
         const minZoom = 0.5;
         const maxZoom = 2.5;
@@ -868,6 +709,7 @@ try {
         }
 
         function applyZoom() {
+            // استهداف العنصر الرئيسي المحتوي على كل المحتوى
             const mainWrapper = document.querySelector('.main-content-wrapper');
             if (mainWrapper) {
                 mainWrapper.style.transform = `scale(${zoomLevel})`;
