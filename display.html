@@ -434,40 +434,44 @@
             }
         }
 
-        function showNextDoctor() {
-            if (doctorsList.length === 0) return;
+function showNextDoctor() {
+    if (doctorsList.length === 0) return;
 
-            const card = document.getElementById('doctorSliderCard');
-            const imgEl = document.getElementById('sliderDocImage');
-            const nameEl = document.getElementById('sliderDocName');
-            const specEl = document.getElementById('sliderDocSpecialty');
+    const card = document.getElementById('doctorSliderCard');
+    const imgEl = document.getElementById('sliderDocImage');
+    const nameEl = document.getElementById('sliderDocName');
+    const specEl = document.getElementById('sliderDocSpecialty');
 
-            // 1. Slide Out
-            card.classList.remove('active');
+    // 1. إخفاء البطاقة (Slide Out)
+    card.classList.remove('active');
 
-            // 2. Wait for animation, change data, slide in
-            setTimeout(() => {
-                const doctor = doctorsList[currentDocIndex];
+    // 2. انتظار انتهاء الانميشن ثم تغيير البيانات وإظهارها
+    setTimeout(() => {
+        const doctor = doctorsList[currentDocIndex];
 
-                // Set Data
-                nameEl.textContent = doctor.name;
-                specEl.textContent = doctor.specialty || 'طبيب متخصص';
-                
-                // Set Image (or fallback)
-                if (doctor.image && doctor.image.trim() !== '') {
-                    imgEl.src = doctor.image;
-                } else {
-                    imgEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(doctor.name)}&background=0d9488&color=fff&size=128&font-size=0.4`;
-                }
+        // تعيين البيانات
+        nameEl.textContent = doctor.name;
+        specEl.textContent = doctor.specialty || 'طبيب متخصص';
+        
+        // التصحيح هنا: التحقق من imageUrl أولاً، ثم image كاحتياطي
+        const imageSrc = doctor.imageUrl || doctor.image;
 
-                // 3. Slide In
-                card.classList.add('active');
-
-                // Prepare next index
-                currentDocIndex = (currentDocIndex + 1) % doctorsList.length;
-
-            }, 1000); // 1s wait matches CSS transition
+        // تعيين الصورة (أو صورة افتراضية ملونة)
+        if (imageSrc && imageSrc.trim() !== '') {
+            imgEl.src = imageSrc;
+        } else {
+            // صورة افتراضية باستخدام الحروف الأولى
+            imgEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(doctor.name)}&background=0d9488&color=fff&size=128&font-size=0.4`;
         }
+
+        // 3. إظهار البطاقة (Slide In)
+        card.classList.add('active');
+
+        // تجهيز المؤشر للطبيب التالي
+        currentDocIndex = (currentDocIndex + 1) % doctorsList.length;
+
+    }, 1000); // انتظار ثانية واحدة وهي مدة الانميشن للخروج
+}
 
         function loadClinics() {
             db.ref('clinics').on('value', (snapshot) => {
