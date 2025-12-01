@@ -882,7 +882,98 @@ function listenForVideoControls() {
     });
 }
 
+function loadStatistics() {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const timestampStart = todayStart.getTime();
 
+    // جلب النداءات من قاعدة البيانات (Realtime Database)
+    db.ref('calls').orderByChild('timestamp').startAt(timestampStart).once('value', (snapshot) => {
+        const calls = snapshot.val() || {};
+        const callsArray = Object.values(calls);
+        
+        // 1. إجمالي النداءات
+        document.getElementById('totalCalls').innerText = callsArray.length;
+
+        // 2. حساب العيادات النشطة وأكثر عيادة نشاطاً
+        const clinicCounts = {};
+        callsArray.forEach(call => {
+            clinicCounts[call.clinicName] = (clinicCounts[call.clinicName] || 0) + 1;
+        });
+
+        const activeClinicsCount = Object.keys(clinicCounts).length;
+        document.getElementById('activeClinics').innerText = activeClinicsCount;
+
+        // إيجاد أكثر عيادة نشاطاً
+        let maxCalls = 0;
+        let topClinic = '--';
+        for (const [name, count] of Object.entries(clinicCounts)) {
+            if (count > maxCalls) {
+                maxCalls = count;
+                topClinic = name;
+            }
+        }
+        document.getElementById('mostActiveClinic').innerText = topClinic;
+
+        // 3. حساب متوسط الانتظار (تقديري بناءً على وقت النداءات)
+        // ملاحظة: لحساب دقيق نحتاج وقت الحجز ووقت النداء، هنا سنحسب الفارق الزمني بين النداءات لنفس العيادة
+        let totalWaitTime = 0;
+        let intervalsCount = 0;
+        
+        // تجميع النداءات حسب العيادة وترتيبها
+        const callsByClinic = {};
+        callsArray.forEach(call => {
+            if (!callsByClinic[call.clinicId]) callsByClinic[call.clinicId] = [];
+            callsByClinic[call.clinicId].push(call.timestamp);
+        });
+
+        for (const clinicId in callsByClinic) {
+            const times = callsByClinic[clinicId].sort((a, b) => a - b);
+            for (let i = 1; i < times.length; i++) {
+                const diffMinutes = (times[i] - times[i-1]) / 1000 / 60;
+                // استبعاد الفترات الطويلة جداً (أكثر من 30 دقيقة تعني توقف العيادة)
+                if (diffMinutes < 30) {
+                    totalWaitTime += diffMinutes;
+                    intervalsCount++;
+                }
+            }
+        }
+
+        const avgTime = intervalsCount > 0 ? Math.round(totalWaitTime / intervalsCount) : 0;
+        document.getElementById('avgWaitTime').innerText = avgTime;
+
+        // 4. تفاصيل العيادات (قائمة تفصيلية)
+        const detailsDiv = document.getElementById('clinicStatistics');
+        detailsDiv.innerHTML = '';
+        
+        for (const [name, count] of Object.entries(clinicCounts)) {
+            detailsDiv.innerHTML += `
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded">
+                    <span class="font-bold text-gray-700">${name}</span>
+                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-bold">${count} نداء</span>
+                </div>
+            `;
+        }
+    });
+    
+    alert('تم تحديث الإحصائيات');
+}
+
+// دالة حذف البيانات القديمة (موجودة بالفعل لديك لكن تأكد من وجودها)
+function cleanupOldData(type) {
+    if(!confirm('هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+    
+    if (type === 'all' || type === 'calls') {
+        db.ref('calls').remove();
+    }
+    if (type === 'all' || type === 'alerts') {
+        db.ref('alerts').remove();
+        db.ref('controlAlerts').remove();
+        db.ref('doctorAlerts').remove();
+    }
+    alert('تم تنظيف البيانات بنجاح');
+    loadStatistics(); // تحديث الأرقام لتصبح أصفار
+}
 
         
     </script>
